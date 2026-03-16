@@ -1,13 +1,44 @@
-import { type ReactNode } from 'react'
-import { Navigate } from 'react-router-dom'
+import { type ReactNode, useEffect } from 'react'
 import { useAuthStore } from '@/stores/authStore'
+import { supabase } from '@/config/supabase'
 
 interface AuthGuardProps {
   children: ReactNode
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { isAuthenticated, isLoading } = useAuthStore()
+  const { isLoading, setLoading, setUser } = useAuthStore()
+
+  useEffect(() => {
+    const isPlaceholder = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://placeholder.supabase.co'
+
+    if (isPlaceholder) {
+      // Demo mode: set demo user and skip auth
+      setUser({ id: 'demo-user', email: 'avvocato@legalmind.it' })
+      setLoading(false)
+      return
+    }
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({ id: session.user.id, email: session.user.email! })
+      }
+      setLoading(false)
+    }).catch(() => {
+      setLoading(false)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser({ id: session.user.id, email: session.user.email! })
+      } else {
+        setUser(null)
+      }
+      setLoading(false)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [setLoading, setUser])
 
   if (isLoading) {
     return (
@@ -24,6 +55,5 @@ export function AuthGuard({ children }: AuthGuardProps) {
     )
   }
 
-  // For demo mode, allow access without auth
   return <>{children}</>
 }
