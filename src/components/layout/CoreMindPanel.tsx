@@ -27,15 +27,74 @@ export function CoreMindPanel() {
     addMessage(userMessage)
     setInput('')
 
-    // AI response placeholder - will be connected to CoreMind engine
-    const aiResponse = {
-      id: crypto.randomUUID(),
-      conversazione_id: '',
-      ruolo: 'assistant' as const,
-      contenuto: 'CoreMind AI è in fase di configurazione. Configura le credenziali Anthropic API nel file .env.local per attivare l\'assistente giuridico.',
-      created_at: new Date().toISOString(),
+    // Connect to real AI via Supabase Edge Function or fallback to demo
+    try {
+      const hasApiKey = import.meta.env.VITE_ANTHROPIC_API_KEY
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+      const isPlaceholder = !supabaseUrl || supabaseUrl === 'https://placeholder.supabase.co'
+
+      if (hasApiKey && !isPlaceholder) {
+        // Call Supabase Edge Function for AI chat
+        const res = await fetch(`${supabaseUrl}/functions/v1/ai-chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: [...messages, userMessage].map(m => ({
+              role: m.ruolo === 'user' ? 'user' : 'assistant',
+              content: m.contenuto,
+            })),
+            system: `Sei CoreMind, l'assistente AI giuridico di LegalMind. Sei specializzato in diritto italiano. 
+Rispondi in modo preciso citando articoli di legge, giurisprudenza e dottrina quando rilevante.
+Materie: civile, penale, amministrativo, tributario, lavoro, famiglia, societario.
+Sei conciso ma completo. Usa il formato Markdown per strutturare le risposte.`,
+          }),
+        })
+        if (res.ok) {
+          const data = await res.json()
+          addMessage({
+            id: crypto.randomUUID(),
+            conversazione_id: '',
+            ruolo: 'assistant',
+            contenuto: data.content || data.message || 'Risposta non disponibile.',
+            created_at: new Date().toISOString(),
+          })
+          return
+        }
+      }
+
+      // Demo mode: intelligent fallback responses
+      const demoResponses: Record<string, string> = {
+        'termine': '**Termini processuali**\n\nI principali termini nel processo civile:\n- **Comparsa di risposta**: 20 giorni prima dell\'udienza (art. 166 c.p.c.)\n- **Memoria ex art. 183 co. 6**: termini fissati dal giudice\n- **Appello**: 30 giorni dalla notifica sentenza (art. 325 c.p.c.)\n- **Cassazione**: 60 giorni dalla notifica (art. 325 c.p.c.)\n\n⚠️ I termini perentori non sono prorogabili (art. 153 c.p.c.)',
+        'risarcimento': '**Risarcimento danni**\n\nIl risarcimento del danno è disciplinato dagli artt. 1223-1227 c.c.:\n- **Danno emergente**: perdita subita\n- **Lucro cessante**: mancato guadagno\n- **Danno biologico**: lesione integrità psicofisica (tabelle Milano)\n- **Danno morale**: sofferenza interiore\n\nOnere della prova: art. 2697 c.c. — il danneggiato deve provare danno, nesso causale e condotta illecita.',
+        'contratto': '**Diritto dei contratti**\n\nElementi essenziali (art. 1325 c.c.):\n1. Accordo delle parti\n2. Causa\n3. Oggetto\n4. Forma (quando richiesta)\n\nRimedi:\n- **Nullità** (art. 1418 c.c.): vizio radicale\n- **Annullabilità** (art. 1425 c.c.): incapacità, vizi del consenso\n- **Risoluzione** (art. 1453 c.c.): inadempimento, impossibilità, eccessiva onerosità',
+        'default': '**CoreMind AI** — Assistente Giuridico\n\nSono il tuo assistente legale AI specializzato in diritto italiano. Posso aiutarti con:\n\n- 📋 **Analisi fascicoli** e strategia processuale\n- ⚖️ **Ricerca giurisprudenziale** su Cassazione e merito\n- 📝 **Redazione atti** e memorie difensive\n- 🔍 **Calcolo termini** processuali e scadenze\n- 💰 **Parcelle DM 55** e contributo unificato\n- 🔒 **GDPR e Privacy** — conformità normativa\n\n*Configura `VITE_ANTHROPIC_API_KEY` nel .env per risposte AI complete.*\n\nChiedimi qualsiasi cosa sul diritto italiano!',
+      }
+
+      const query = input.toLowerCase()
+      let response = demoResponses['default']
+      for (const [key, val] of Object.entries(demoResponses)) {
+        if (key !== 'default' && query.includes(key)) { response = val; break }
+      }
+
+      setTimeout(() => addMessage({
+        id: crypto.randomUUID(),
+        conversazione_id: '',
+        ruolo: 'assistant',
+        contenuto: response,
+        created_at: new Date().toISOString(),
+      }), 600)
+    } catch {
+      addMessage({
+        id: crypto.randomUUID(),
+        conversazione_id: '',
+        ruolo: 'assistant',
+        contenuto: '⚠️ Errore di connessione. Verifica la configurazione delle API.',
+        created_at: new Date().toISOString(),
+      })
     }
-    setTimeout(() => addMessage(aiResponse), 500)
   }
 
   return (

@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, FolderOpen, FileText, Clock, Users, Wallet,
-  Scale, Search, Shield, Building2, Briefcase, Lock,
+  Scale, Search, Shield, Building2, Briefcase, Lock, Send, BookOpen,
   BarChart3, GraduationCap, Settings, ChevronLeft, ChevronRight, Brain, X
 } from 'lucide-react'
 import { useUIStore } from '@/stores/uiStore'
@@ -14,8 +14,8 @@ const navItems = [
   { path: '/scadenziario', label: 'Scadenziario', icon: Clock },
   { path: '/clienti', label: 'Clienti & CRM', icon: Users },
   { path: '/contabilita', label: 'Contabilità', icon: Wallet },
-  { path: '/pct', label: 'PCT Telematico', icon: Scale },
-  { path: '/normativa', label: 'Osservatorio Normativo', icon: Scale },
+  { path: '/pct', label: 'PCT Telematico', icon: Send },
+  { path: '/normativa', label: 'Osservatorio Normativo', icon: BookOpen },
   { path: '/giurisprudenza', label: 'Giurisprudenza', icon: Search },
   { path: '/penale', label: 'Penale', icon: Shield },
   { path: '/tributario', label: 'Tributario', icon: Building2 },
