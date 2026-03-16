@@ -1,0 +1,6 @@
+export { useAuthStore } from './authStore'
+export { useUIStore } from './uiStore'
+export { useFascicoloStore } from './fascicoloStore'
+export { useAIStore } from './aiStore'
+export { useNotificheStore } from './notificheStore'
+export { useScadenziarioStore } from './scadenziarioStore'

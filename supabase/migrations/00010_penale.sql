@@ -1,0 +1,31 @@
+-- 00010_penale.sql
+
+CREATE TABLE procedimenti_penali (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  fascicolo_id UUID NOT NULL REFERENCES fascicoli(id) ON DELETE CASCADE,
+  studio_id UUID NOT NULL REFERENCES studi_legali(id) ON DELETE CASCADE,
+  notizia_reato TEXT NOT NULL,
+  articoli_contestati TEXT[] NOT NULL,
+  data_iscrizione_ndr DATE,
+  procura_competente TEXT,
+  pm_titolare TEXT,
+  gip TEXT,
+  misura_cautelare TEXT,
+  data_applicazione_misura DATE,
+  data_scadenza_misura DATE,
+  termini_custodia JSONB,
+  data_fatto DATE,
+  prescrizione_base_anni INT,
+  prescrizione_data_maturazione DATE,
+  interruzioni_prescrizione JSONB DEFAULT '[]'::jsonb,
+  sospensioni_prescrizione JSONB DEFAULT '[]'::jsonb,
+  fase_indagini TEXT,
+  data_chiusura_indagini DATE,
+  avviso_conclusione_indagini BOOLEAN DEFAULT false,
+  data_avviso_407 DATE,
+  esito TEXT,
+  pena_inflitta TEXT,
+  pena_sospesa BOOLEAN,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
