@@ -7,6 +7,7 @@ interface UIState {
   commandPaletteOpen: boolean
   activeModal: string | null
   modalData: Record<string, unknown> | null
+  theme: 'dark' | 'light'
   toggleSidebar: () => void
   setSidebarMobileOpen: (open: boolean) => void
   toggleCoreMindPanel: () => void
@@ -14,6 +15,7 @@ interface UIState {
   setCommandPaletteOpen: (open: boolean) => void
   openModal: (modal: string, data?: Record<string, unknown>) => void
   closeModal: () => void
+  toggleTheme: () => void
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -23,6 +25,7 @@ export const useUIStore = create<UIState>((set) => ({
   commandPaletteOpen: false,
   activeModal: null,
   modalData: null,
+  theme: (localStorage.getItem('legalmind-theme') as 'dark' | 'light') || 'dark',
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   setSidebarMobileOpen: (open) => set({ sidebarMobileOpen: open }),
   toggleCoreMindPanel: () => set((s) => ({ coreMindPanelOpen: !s.coreMindPanelOpen })),
@@ -30,4 +33,10 @@ export const useUIStore = create<UIState>((set) => ({
   setCommandPaletteOpen: (open) => set({ commandPaletteOpen: open }),
   openModal: (modal, data) => set({ activeModal: modal, modalData: data || null }),
   closeModal: () => set({ activeModal: null, modalData: null }),
+  toggleTheme: () => set((s) => {
+    const next = s.theme === 'dark' ? 'light' : 'dark'
+    localStorage.setItem('legalmind-theme', next)
+    document.documentElement.classList.toggle('light', next === 'light')
+    return { theme: next }
+  }),
 }))

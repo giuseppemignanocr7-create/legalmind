@@ -22,6 +22,10 @@ import { PrivacyPage } from '@/components/privacy/PrivacyPage'
 import { AnalyticsPage } from '@/components/analytics/AnalyticsPage'
 import { AcademyPage } from '@/components/academy/AcademyPage'
 import { SettingsPage } from '@/components/settings/SettingsPage'
+import { NuovoFascicoloForm } from '@/components/fascicoli/NuovoFascicoloForm'
+import { NuovoClienteForm } from '@/components/clienti/NuovoClienteForm'
+import { PCTModule } from '@/components/pct/PCTModule'
+import { FatturazioneElettronica } from '@/components/contabilita/FatturazioneElettronica'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,11 +51,15 @@ export function App() {
           <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/fascicoli" element={<FascicoliPage />} />
+            <Route path="/fascicoli/nuovo" element={<NuovoFascicoloForm />} />
             <Route path="/fascicoli/:id" element={<FascicoloDetail />} />
             <Route path="/clienti" element={<ClientiPage />} />
+            <Route path="/clienti/nuovo" element={<NuovoClienteForm />} />
             <Route path="/atti" element={<AttiPage />} />
             <Route path="/scadenziario" element={<ScadenziarioPage />} />
             <Route path="/contabilita" element={<ContabilitaPage />} />
+            <Route path="/contabilita/fatturazione" element={<FatturazioneElettronica />} />
+            <Route path="/pct" element={<PCTModule />} />
             <Route path="/normativa" element={<OsservatorioPage />} />
             <Route path="/giurisprudenza" element={<GiurisprudenzaPage />} />
             <Route path="/penale" element={<PenalePage />} />

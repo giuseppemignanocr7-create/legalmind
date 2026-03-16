@@ -2,6 +2,7 @@ import { Bell, Search, Menu, Brain } from 'lucide-react'
 import { useUIStore } from '@/stores/uiStore'
 import { useNotificheStore } from '@/stores/notificheStore'
 import { useAuthStore } from '@/stores/authStore'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 export function Header() {
   const { setCommandPaletteOpen, setSidebarMobileOpen, toggleCoreMindPanel } = useUIStore()
@@ -33,6 +34,8 @@ export function Header() {
 
       {/* Right: AI + notifications + profile */}
       <div className="flex items-center gap-3">
+        <ThemeToggle />
+
         <button
           onClick={toggleCoreMindPanel}
           className="p-2 rounded-lg text-gold-400 hover:bg-gold-400/10 transition-colors"

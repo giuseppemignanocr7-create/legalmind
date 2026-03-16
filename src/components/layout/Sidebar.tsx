@@ -14,6 +14,7 @@ const navItems = [
   { path: '/scadenziario', label: 'Scadenziario', icon: Clock },
   { path: '/clienti', label: 'Clienti & CRM', icon: Users },
   { path: '/contabilita', label: 'Contabilità', icon: Wallet },
+  { path: '/pct', label: 'PCT Telematico', icon: Scale },
   { path: '/normativa', label: 'Osservatorio Normativo', icon: Scale },
   { path: '/giurisprudenza', label: 'Giurisprudenza', icon: Search },
   { path: '/penale', label: 'Penale', icon: Shield },
