@@ -24,6 +24,7 @@ import { AcademyPage } from '@/components/academy/AcademyPage'
 import { SettingsPage } from '@/components/settings/SettingsPage'
 import { NuovoFascicoloForm } from '@/components/fascicoli/NuovoFascicoloForm'
 import { NuovoClienteForm } from '@/components/clienti/NuovoClienteForm'
+import { ClienteDetail } from '@/components/clienti/ClienteDetail'
 import { PCTModule } from '@/components/pct/PCTModule'
 import { FatturazioneElettronica } from '@/components/contabilita/FatturazioneElettronica'
 
@@ -55,6 +56,7 @@ export function App() {
             <Route path="/fascicoli/:id" element={<FascicoloDetail />} />
             <Route path="/clienti" element={<ClientiPage />} />
             <Route path="/clienti/nuovo" element={<NuovoClienteForm />} />
+            <Route path="/clienti/:id" element={<ClienteDetail />} />
             <Route path="/atti" element={<AttiPage />} />
             <Route path="/scadenziario" element={<ScadenziarioPage />} />
             <Route path="/contabilita" element={<ContabilitaPage />} />
