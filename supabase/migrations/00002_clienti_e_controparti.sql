@@ -52,7 +52,7 @@ CREATE TABLE soggetti (
   aml_last_check TIMESTAMPTZ,
   pep BOOLEAN DEFAULT false,
   display_name TEXT GENERATED ALWAYS AS (
-    COALESCE(ragione_sociale, CONCAT(cognome, ' ', nome))
+    COALESCE(ragione_sociale, (COALESCE(cognome, '') || ' ' || COALESCE(nome, '')))
   ) STORED,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()

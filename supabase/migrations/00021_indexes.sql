@@ -7,11 +7,10 @@ CREATE INDEX IF NOT EXISTS idx_fascicoli_priorita ON fascicoli(studio_id, priori
 
 -- Scadenze: dashboard upcoming
 CREATE INDEX IF NOT EXISTS idx_scadenze_upcoming ON scadenze(studio_id, data_scadenza ASC)
-  WHERE stato = 'attiva' AND data_scadenza >= CURRENT_DATE;
+  WHERE stato = 'attiva';
 
 -- Udienze: upcoming
-CREATE INDEX IF NOT EXISTS idx_udienze_upcoming ON udienze(studio_id, data_udienza ASC)
-  WHERE data_udienza >= NOW();
+CREATE INDEX IF NOT EXISTS idx_udienze_upcoming ON udienze(studio_id, data_udienza ASC);
 
 -- Fatture: unpaid
 CREATE INDEX IF NOT EXISTS idx_fatture_unpaid ON fatture(studio_id, data_scadenza_pagamento)

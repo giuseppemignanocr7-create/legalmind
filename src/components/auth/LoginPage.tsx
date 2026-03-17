@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, Link, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Scale, Eye, EyeOff, LogIn } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -8,13 +8,28 @@ import { supabase } from '@/config/supabase'
 import { useAuthStore } from '@/stores/authStore'
 import { toast } from 'sonner'
 
+const errorMessages: Record<string, string> = {
+  'Invalid login credentials': 'Email o password non corretti',
+  'Email not confirmed': 'Conferma il tuo indirizzo email prima di accedere',
+  'Invalid email or password': 'Email o password non corretti',
+  'Too many requests': 'Troppi tentativi. Riprova tra qualche minuto',
+}
+
 export function LoginPage() {
   const navigate = useNavigate()
-  const { setUser, setLoading } = useAuthStore()
+  const location = useLocation()
+  const { isAuthenticated, setUser } = useAuthStore()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      const from = (location.state as any)?.from || '/dashboard'
+      navigate(from, { replace: true })
+    }
+  }, [isAuthenticated, navigate, location.state])
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -25,19 +40,15 @@ export function LoginPage() {
       if (error) throw error
       if (data.user) {
         setUser({ id: data.user.id, email: data.user.email! })
-        navigate('/dashboard')
         toast.success('Accesso effettuato')
+        navigate('/dashboard')
       }
     } catch (err: any) {
-      toast.error(err.message || 'Errore durante l\'accesso')
+      const msg = errorMessages[err.message] || err.message || 'Errore durante l\'accesso'
+      toast.error(msg)
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleDemoAccess = () => {
-    navigate('/dashboard')
-    toast.success('Accesso demo attivato')
   }
 
   return (
@@ -129,12 +140,6 @@ export function LoginPage() {
                 Registrati
               </Link>
             </p>
-          </div>
-
-          <div className="mt-8 pt-6 border-t border-border-subtle">
-            <Button variant="secondary" fullWidth onClick={handleDemoAccess}>
-              Accedi in modalità Demo
-            </Button>
           </div>
         </motion.div>
       </div>

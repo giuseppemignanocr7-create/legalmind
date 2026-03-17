@@ -26,8 +26,8 @@ RETURNS BOOLEAN AS $$
     WHERE id = p_fascicolo_id 
     AND (
       avvocato_responsabile = auth.uid()
-      OR dominus = auth.uid()
-      OR auth.uid() = ANY(co_counsel)
+      OR avvocato_domiciliatario = auth.uid()
+      OR auth.uid() = ANY(team_ids)
     )
   )
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
@@ -99,7 +99,7 @@ CREATE POLICY "fascicoli_update" ON fascicoli FOR UPDATE
     AND (
       is_studio_admin()
       OR avvocato_responsabile = auth.uid()
-      OR dominus = auth.uid()
+      OR avvocato_domiciliatario = auth.uid()
     )
   );
 

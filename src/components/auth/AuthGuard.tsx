@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { supabase } from '@/config/supabase'
 
@@ -6,22 +7,40 @@ interface AuthGuardProps {
   children: ReactNode
 }
 
+async function loadProfileAndStudio(userId: string, setProfilo: any, setStudio: any) {
+  try {
+    const { data: profilo } = await supabase
+      .from('profili')
+      .select('*')
+      .eq('id', userId)
+      .single()
+
+    if (profilo) {
+      setProfilo(profilo)
+
+      const { data: studio } = await supabase
+        .from('studi_legali')
+        .select('*')
+        .eq('id', profilo.studio_id)
+        .single()
+
+      if (studio) setStudio(studio)
+    }
+  } catch (err) {
+    console.error('Error loading profile/studio:', err)
+  }
+}
+
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { isLoading, setLoading, setUser } = useAuthStore()
+  const { isAuthenticated, isLoading, setLoading, setUser, setProfilo, setStudio } = useAuthStore()
+  const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
-    const isPlaceholder = !import.meta.env.VITE_SUPABASE_URL || import.meta.env.VITE_SUPABASE_URL === 'https://placeholder.supabase.co'
-
-    if (isPlaceholder) {
-      // Demo mode: set demo user and skip auth
-      setUser({ id: 'demo-user', email: 'avvocato@legalmind.it' })
-      setLoading(false)
-      return
-    }
-
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) {
         setUser({ id: session.user.id, email: session.user.email! })
+        loadProfileAndStudio(session.user.id, setProfilo, setStudio)
       }
       setLoading(false)
     }).catch(() => {
@@ -31,14 +50,23 @@ export function AuthGuard({ children }: AuthGuardProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session?.user) {
         setUser({ id: session.user.id, email: session.user.email! })
+        loadProfileAndStudio(session.user.id, setProfilo, setStudio)
       } else {
         setUser(null)
+        setProfilo(null)
+        setStudio(null)
       }
       setLoading(false)
     })
 
     return () => subscription.unsubscribe()
-  }, [setLoading, setUser])
+  }, [setLoading, setUser, setProfilo, setStudio])
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login', { replace: true, state: { from: location.pathname } })
+    }
+  }, [isLoading, isAuthenticated, navigate, location.pathname])
 
   if (isLoading) {
     return (
@@ -54,6 +82,8 @@ export function AuthGuard({ children }: AuthGuardProps) {
       </div>
     )
   }
+
+  if (!isAuthenticated) return null
 
   return <>{children}</>
 }
